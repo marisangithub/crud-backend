@@ -1,92 +1,102 @@
-//use components
+// Load environment variables
+require('dotenv').config();
+
+// Import modules
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-//use express
+// Initialize express app
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-//port assign
+// Port configuration
 const port = process.env.PORT || 3000;
 
+// MongoDB connection
+mongoose.connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+.then(() => console.log('✅ Connected to MongoDB'))
+.catch((err) => console.error('❌ MongoDB connection failed:', err));
 
-//connect mongoose
-mongoose.connect(process.env.MONGO_URL)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error('MongoDB connection failed:', err));
-
-//create schema
+// Schema
 const crudSchema = new mongoose.Schema({
     fname: String,
     lname: String,
-    email:String,
-    phone:String
+    email: String,
+    phone: String,
 });
 
-//create model
-const crudmodel = mongoose.model('crud', crudSchema);
+// Model
+const CrudModel = mongoose.model('Crud', crudSchema);
 
-//post method
+// Routes
+
+// Create
 app.post('/crud', async (req, res) => {
-    const { fname,lname,email,phone } = req.body;
+    const { fname, lname, email, phone } = req.body;
     try {
-        const newcrud = new crudmodel({ fname,lname,email,phone });
-        await newcrud.save();
-        res.status(201).json(newcrud);
+        const newCrud = new CrudModel({ fname, lname, email, phone });
+        await newCrud.save();
+        res.status(201).json(newCrud);
     } catch (error) {
-        console.log(error);
-      res.status(501).json({ error: 'Internal Server Error' });
-    }
-
-});
-
-//get method
-app.get('/crud', async (req, res) => {
-    try {
-        const details = await crudmodel.find();
-        res.json(details);
-    } catch (error) {
-        console.log(error);
-        res.status(404).json({ error: 'Not Found' });
-    }
-});
-//update
-app.put('/crud/:id', async (req, res) => {
-    try {
-        const { fname,lname,email,phone } = req.body;
-        const id = req.params.id;
-        const updatedcrud = await crudmodel.findByIdAndUpdate(
-            id,
-            { fname,lname,email,phone },
-            { new: true }
-        )
-        if (!updatedcrud) {
-            return res.status(404).json({ error: 'Not Found' });
-        }
-        res.json(updatedcrud)
-    } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
-//delete
-app.delete('/crud/:id', async (req,res)=>{
+// Read
+app.get('/crud', async (req, res) => {
     try {
-            const id = req.params.id;
-    await crudmodel.findByIdAndDelete(id)
-    res.status(204).end();
-    
+        const details = await CrudModel.find();
+        res.json(details);
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
-
-
 });
 
-//connect to port
+// Update
+app.put('/crud/:id', async (req, res) => {
+    const { fname, lname, email, phone } = req.body;
+    const { id } = req.params;
+    try {
+        const updatedCrud = await CrudModel.findByIdAndUpdate(
+            id,
+            { fname, lname, email, phone },
+            { new: true }
+        );
+        if (!updatedCrud) {
+            return res.status(404).json({ error: 'Not Found' });
+        }
+        res.json(updatedCrud);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Delete
+app.delete('/crud/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await CrudModel.findByIdAndDelete(id);
+        res.status(204).end();
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Default route for health check
+app.get('/', (req, res) => {
+    res.send('CRUD API is running.');
+});
+
+// Listen
 app.listen(port, () => {
-    console.log('listening')
+    console.log(`🚀 Server is running on port ${port}`);
 });
