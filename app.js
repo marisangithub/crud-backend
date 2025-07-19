@@ -9,11 +9,13 @@ app.use(express.json());
 app.use(cors());
 
 //port assign
-const port = 3000;
+const port = process.env.PORT || 3000;
+
 
 //connect mongoose
-mongoose.connect('mongodb://127.0.0.1:27017/usercrud')
-    .then(() => console.log('Connected!'));
+mongoose.connect(process.env.MONGO_URL)
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((err) => console.error('MongoDB connection failed:', err));
 
 //create schema
 const crudSchema = new mongoose.Schema({

@@ -1,8 +1,17 @@
 {
+  "name": "crud-backend",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "mongoose": "^8.16.4",
+    "mongoose": "^8.16.4"
+  },
+  "devDependencies": {
     "nodemon": "^3.1.10"
   }
 }
