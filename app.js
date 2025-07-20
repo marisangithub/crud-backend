@@ -1,6 +1,3 @@
-// Load environment variables
-require('dotenv').config();
-
 // Import modules
 const express = require('express');
 const mongoose = require('mongoose');
