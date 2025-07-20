@@ -80,13 +80,17 @@ app.put('/crud/:id', async (req, res) => {
 app.delete('/crud/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        await CrudModel.findByIdAndDelete(id);
-        res.status(204).end();
+        const deletedItem = await CrudModel.findByIdAndDelete(id);
+        if (!deletedItem) {
+            return res.status(404).json({ error: 'Item not found' });
+        }
+        res.status(200).json({ message: 'Item deleted successfully' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
 
 // Default route for health check
 app.get('/', (req, res) => {
